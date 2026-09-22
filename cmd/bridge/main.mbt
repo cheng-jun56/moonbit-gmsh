@@ -46,6 +46,43 @@ fn dict(j : Json) -> Map[String, Json] raise {
 }
 
 ///|
+// FromJson[Int] may truncate fractional numbers: IDs/budgets must be exact.
+fn integer(j : Json) -> Int raise {
+  let x : Double = @json.from_json(j)
+  if x != x || x < -2147483648.0 || x > 2147483647.0 || x != x.floor() {
+    raise Failure("expected signed 32-bit integer")
+  }
+  x.to_int()
+}
+
+///|
+fn req_int(o : Map[String, Json], key : String) -> Int raise {
+  integer(req(o, key))
+}
+
+///|
+fn opt_int(o : Map[String, Json], key : String, fallback : Int) -> Int raise {
+  match o.get(key) {
+    Some(j) => integer(j)
+    None => fallback
+  }
+}
+
+///|
+fn ints(
+  o : Map[String, Json],
+  key : String,
+  required? : Bool = false,
+) -> Array[Int] raise {
+  let values : Array[Json] = if required {
+    req(o, key)
+  } else {
+    opt(o, key, [])
+  }
+  values.map(integer)
+}
+
+///|
 fn model(o : Map[String, Json]) -> @lib.Mesh raise {
   let ns : Array[Json] = req(o, "nodes")
   let es : Array[Json] = req(o, "elements")
@@ -56,39 +93,39 @@ fn model(o : Map[String, Json]) -> @lib.Mesh raise {
   let nodes = ns.map(j => {
     let x = dict(j)
     @lib.Node::{
-      tag: req(x, "tag"),
+      tag: req_int(x, "tag"),
       xyz: req(x, "xyz"),
-      dim: opt(x, "dim", -1),
-      entity: opt(x, "entity", 0),
+      dim: opt_int(x, "dim", -1),
+      entity: opt_int(x, "entity", 0),
       parameters: opt(x, "parameters", []),
     }
   })
   let elements = es.map(j => {
     let x = dict(j)
     @lib.Element::{
-      tag: req(x, "tag"),
-      kind: req(x, "kind"),
-      nodes: req(x, "nodes"),
-      entity: opt(x, "entity", 0),
-      physical: opt(x, "physical", []),
-      extra: opt(x, "extra", []),
+      tag: req_int(x, "tag"),
+      kind: req_int(x, "kind"),
+      nodes: ints(x, "nodes", required=true),
+      entity: opt_int(x, "entity", 0),
+      physical: ints(x, "physical"),
+      extra: ints(x, "extra"),
     }
   })
   let entities = ents.map(j => {
     let x = dict(j)
     @lib.Entity::{
-      dim: req(x, "dim"),
-      tag: req(x, "tag"),
+      dim: req_int(x, "dim"),
+      tag: req_int(x, "tag"),
       bounds: req(x, "bounds"),
-      physical: opt(x, "physical", []),
-      boundary: opt(x, "boundary", []),
+      physical: ints(x, "physical"),
+      boundary: ints(x, "boundary"),
     }
   })
   let names = names.map(j => {
     let x = dict(j)
     @lib.PhysicalName::{
-      dim: req(x, "dim"),
-      tag: req(x, "tag"),
+      dim: req_int(x, "dim"),
+      tag: req_int(x, "tag"),
       name: req(x, "name"),
     }
   })
@@ -99,10 +136,10 @@ fn model(o : Map[String, Json]) -> @lib.Mesh raise {
       location: req(x, "location"),
       strings: req(x, "strings"),
       reals: req(x, "reals"),
-      integers: req(x, "integers"),
+      integers: ints(x, "integers", required=true),
       entries: data.map(j => {
         let d = dict(j)
-        @lib.Datum::{ tag: req(d, "tag"), values: req(d, "values"), }
+        @lib.Datum::{ tag: req_int(d, "tag"), values: req(d, "values"), }
       }),
     }
   })
@@ -128,7 +165,7 @@ fn encode(m : @lib.Mesh, o : Map[String, Json]) -> Bytes raise {
     version=opt(o, "version", m.source_version()),
     binary=opt(o, "binary", false),
     little=opt(o, "little", true),
-    size_width=opt(o, "size_width", 8),
+    size_width=opt_int(o, "size_width", 8),
     allow_loss=opt(o, "allow_loss", false),
   )
 }
@@ -162,8 +199,24 @@ fn do_report(data : Bytes, options : String) -> String raise {
     "validate" =>
       m.diagnostics(tolerance=opt(o, "tolerance", 1.0e-12)).to_json()
     "quality" =>
-      m.quality(req(o, "tag"), tolerance=opt(o, "tolerance", 1.0e-12)).to_json()
-    "topology" => m.topology(dimension=opt(o, "dimension", -1)).to_json()
+      m
+      .quality(req_int(o, "tag"), tolerance=opt(o, "tolerance", 1.0e-12))
+      .to_json()
+    "topology" => m.topology(dimension=opt_int(o, "dimension", -1)).to_json()
+    "boundary" => {
+      let m = if opt(o, "drop_unknown", false) {
+        m.without_unknown()
+      } else {
+        m
+      }
+      m
+      .extract_boundary(
+        dimension=opt_int(o, "dimension", -1),
+        max_facets=opt_int(o, "max_facets", 1000000),
+      )
+      .report()
+      .to_json()
+    }
     "components" => m.components().to_json()
     "vtk" => { "text": m.vtk(allow_loss=opt(o, "allow_loss", false)).to_json() }
     "obj" => { "text": m.obj(allow_loss=opt(o, "allow_loss", false)).to_json() }
@@ -187,9 +240,17 @@ fn do_transform(data : Bytes, options : String) -> Bytes raise {
   let command : String = opt(o, "command", "copy")
   let m = match command {
     "copy" | "convert" => m
-    "subset" => m.subset(req(o, "tags"))
-    "physical" => m.select_physical(req(o, "dimension"), req(o, "group"))
+    "subset" => m.subset(ints(o, "tags", required=true))
+    "physical" =>
+      m.select_physical(req_int(o, "dimension"), req_int(o, "group"))
     "compact" => m.compact()
+    "boundary-msh" =>
+      m
+      .extract_boundary(
+        dimension=opt_int(o, "dimension", -1),
+        max_facets=opt_int(o, "max_facets", 1000000),
+      )
+      .mesh(allow_loss=opt(o, "allow_loss", false))
     _ => raise Failure("unknown transform command: " + command)
   }
   encode(m, o)

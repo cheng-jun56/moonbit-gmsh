@@ -1,5 +1,7 @@
 # MoonGmsh
 
+评审/首次使用请先看[实际任务、替代方案与可运行证据](REVIEW.md)：读MSH，选定单元维度，消除内部共享面，提取边界，保留匹配的显式边界标签/字段，报告父单元来源与损失，再导出MSH或几何文件。
+
 纯 MoonBit 的 Gmsh MSH 网格交换、拓扑与几何检查库。核心不调用 Gmsh、
 meshio、Python 或 JS 解析器；Node 宿主只处理参数、真实文件和退出码。
 本地模块 `localreview/gmsh@0.1.0`，MIT；尚未推送、发布或运行远程 CI。
@@ -16,6 +18,7 @@ meshio、Python 或 JS 解析器；Node 宿主只处理参数、真实文件和�
 | 数据字段 | 多帧 NodeData / ElementData；1/3/9 分量；稀疏数据；时间与额外头标签 |
 | 变换 | 按单元/物理组取子集、清除未使用节点、紧凑编号；同步维护字段关联 |
 | 拓扑 | 线性单元面/边邻接、外边界、非流形面；全阶共享节点连通分量 |
+| 边界工作流 | 外面/外边/端点提取，复用显式单元标签/字段，来源映射与损失报告，派生MSH导出 |
 | 几何 | 孤立/精确重复节点、重复连接；线性三角形面积/质量、四面体有符号体积/翻转/质量 |
 | 导出 | MSH、JSON；线性网格的 geometry-only VTK/OBJ；体网格 OBJ 导出外边界 |
 
@@ -35,6 +38,9 @@ moon build --target js --release
 node tools/gmsh.mjs inspect examples/triangle.msh
 node tools/gmsh.mjs quality examples/triangle.msh examples/quality.json
 node tools/gmsh.mjs topology examples/triangle.msh
+node tools/gmsh.mjs boundary examples/triangle.msh
+node tools/gmsh.mjs boundary-msh examples/triangle.msh examples/boundary.json boundary.msh
+moon run examples/extract_boundary --target js
 node tools/gmsh.mjs validate examples/triangle.msh examples/strict.json
 node tools/gmsh.mjs convert examples/triangle.msh examples/convert.json converted.msh
 node tools/gmsh.mjs inspect converted.msh
@@ -54,8 +60,8 @@ node tools/gmsh.mjs create OPTIONS.json OUTPUT
 ```
 
 OPTIONS 是 UTF-8 JSON **文件路径**，不是内联 JSON。
-可写命令：`copy convert subset physical compact`。报告命令：
-`inspect dump validate quality topology components vtk obj`。
+可写命令：`copy convert subset physical compact boundary-msh`。报告命令：
+`inspect dump validate quality topology components boundary vtk obj`。
 未指定 OUTPUT 时报告到 stdout；VTK/OBJ 输出文本，其余输出 JSON。
 
 | 选项 | 用途 |
@@ -70,6 +76,11 @@ OPTIONS 是 UTF-8 JSON **文件路径**，不是内联 JSON。
 | `tag` | quality 的单元编号 |
 | `tolerance` | 退化质量阈值，默认 1e-12，范围 [0,1) |
 | `strict` | validate 为 true 时，已支持的几何缺陷同时触发退出码 3 |
+| `max_facets` | boundary/boundary-msh 的输出面额度，0..100万，默认100万；不截断 |
+
+`boundary` 先报告原始来源与元数据损失；`boundary-msh` 默认输出2.2，有损失须
+allow_loss。匹配的显式面保留自己的顺序/标签/字段，新面沿参考单元顺序；不保证任意
+倒置网格的外法向，不将体字段/体物理组猜成面属性。完整契约见 [边界指南](docs/BOUNDARY.md)。
 
 退出码：0 成功、2 输入/格式/IO/不支持请求、3 strict 检测到缺陷。
 默认 validate 是诊断报告，不以非零码代替结果；
@@ -96,6 +107,9 @@ let selected = m.subset([77]).compact()
 let output = selected.encode(version="4.1", binary=true)
 let report = m.diagnostics()
 let faces = m.topology().boundary
+let boundary = m.extract_boundary()
+let mapping = boundary.report()
+// Inspect mapping.losses before explicitly opting into any loss.
 ```
 
 入口 `mesh`、`decode`、`Mesh::encode`；
@@ -140,10 +154,13 @@ DTO 可构造，Mesh 内部数组/索引私有。关联先验证，不静默修�
 ```sh
 python -m pip install -r tools/requirements.txt
 python tools/verify-reference.py
+python tools/verify-boundary.py
 node tools/check-cli.mjs
 ```
 
-本地 JS / Wasm-GC 各 14 组、24 项 CLI 检查、独立 586 个请求 / 2,053 断言。
+原基线 JS / Wasm-GC 各14组、24项CLI、独立586请求/2,053断言；本次边界新增6组核心测试。
+新增独立边界请求及真实CLI记录见 evidence/boundary-reference.json，完整当前源码绑定
+见 evidence/boundary-20260922.json。历史 evidence/reference.json 不冒充新增代码的回执。
 17 类型 meshio 双向、另 2 类型 struct；稀疏数据/参数坐标/大小端/size_t32
 由 struct 验证，80 组几何由 NumPy 对照；极端长薄和次正规范围用 100 位 Decimal
 独立对照。详见 docs/TESTING.md 与 evidence/reference.json。

@@ -3,8 +3,10 @@ import fs from 'node:fs';
 import {report,transform,new_file} from '../_build/js/release/build/cmd/bridge/bridge.js';
 const usage=`Usage: node tools/gmsh.mjs COMMAND INPUT [OPTIONS.json] [OUTPUT]
        node tools/gmsh.mjs create OPTIONS.json OUTPUT
-Reports: inspect dump validate quality topology components vtk obj
-Writes: copy convert subset physical compact (OUTPUT required)
+Reports: inspect dump validate quality topology components boundary vtk obj
+Writes: copy convert subset physical compact boundary-msh (OUTPUT required)
+boundary reports source mapping and losses; boundary-msh requires allow_loss
+when that report lists omissions. Derived MSH defaults to version 2.2.
 Options are a JSON FILE, not inline JSON; existing outputs are never overwritten.
 validate reports geometry defects in JSON; strict=true also exits 3 for supported
 defects. Unsupported quality types remain explicit and are not certified valid.`;
@@ -16,6 +18,7 @@ function read(file,limit) {
     const b=Buffer.alloc(stat.size+1);let n=0,k;
     while(n<b.length&&(k=fs.readSync(fd,b,n,b.length-n,null))) n+=k;
     if(n>stat.size) throw new Error('file grew during read; retry stable input');
+    if(n<stat.size) throw new Error('file shrank during read; retry stable input');
     return b.subarray(0,n);
   } finally {fs.closeSync(fd);}
 }
@@ -35,7 +38,7 @@ try {
     if(a.length<2||a.length>4) throw new Error(usage);
     const [command,input,opts,output]=a,o=options(opts);o.command=command;
     const bytes=read(input,134_217_728);
-    if(['copy','convert','subset','physical','compact'].includes(command)) {
+    if(['copy','convert','subset','physical','compact','boundary-msh'].includes(command)) {
       if(!output) throw new Error('transformation requires OUTPUT');
       save(output,Buffer.from(transform(bytes,JSON.stringify(o))));
     } else {

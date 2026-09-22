@@ -14,6 +14,9 @@ moon info
 node tools/check-cli.mjs
 python -m pip install -r tools/requirements.txt
 python tools/verify-reference.py
+python tools/verify-boundary.py
+moon run examples/extract_boundary --target js
+moon run examples/extract_boundary --target wasm-gc
 ```
 
 14 组核心测试按缺陷机制组织：payload 首字节为换行值、大小端/size_t、
@@ -45,3 +48,13 @@ token np.float64(...)。生成阶段使用 NumPy legacy="1.25" 打印选项；
 evidence/reference.json 记录 *.mbt、moon 配置及脚本 LF 规范化 SHA-256，
 避免 Windows checkout 换行假差异；交付包另有原始字节 SHA-256。
 计时/平台为证据生成时本机快照，不是远程 CI。
+
+## 2026-09-22 边界增强
+
+新增6组公开API测试块（全套20组）：来源/稀疏编号、显式边界属性和字段、
+空闭环/额度、歧义/非流形/高阶、分类损失、未知段。严格all-target和两运行后端
+与新增纯MoonBit示例均记录在当前 evidence/boundary-20260922.json。
+独立脚本使用几何支持平面/直线，不复制本库面表；meshio双向，轻量ASCII解析最大tag，
+真实CLI及最终OBJ/VTK下游回读。详细范围/计数见 boundary-reference.json。
+已有参考也在变更后运行，回执另存 boundary-baseline-reference.json；reference.json保留历史。
+公开接口、文档和示例纳入当前LF规范化源码散列，而不是只对核心文件抽样。

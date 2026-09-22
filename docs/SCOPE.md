@@ -11,6 +11,7 @@
 | 未知段/损失 | ASCII 规范化文本保留；二进制拒绝；变换显式 drop |
 | 子集/紧凑编号 | operations，同步字段筛选/改号，不改实体和物理标签 |
 | 边界/邻接/连通 | 线性面 incidence 与非流形；全阶共享节点 components |
+| 可用边界网格 | extract_boundary/report/mesh；原始来源、匹配标签/稀疏字段、显式损失、真实MSH输出 |
 | 孤立/重复/退化/翻转 | geometry；Double 相对阈值；翻转定义在线性四面体 |
 | 三角形/四面体质量体积 | NumPy 80 组、规则单纯形、Decimal 极端长薄/次正规范围 |
 | VTK/OBJ/JSON | 真实文件、meshio 回读、体网格外法向 |

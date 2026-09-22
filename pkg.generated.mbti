@@ -19,6 +19,45 @@ pub suberror MeshError {
 pub fn MeshError::to_repr(Self) -> @debug.Repr
 
 // Types and methods
+pub struct Boundary {
+  // private fields
+}
+pub fn Boundary::mesh(Self, allow_loss? : Bool) -> Mesh raise
+pub fn Boundary::report(Self) -> BoundaryReport
+
+pub(all) struct BoundaryField {
+  source_index : Int
+  input_entries : Int
+  retained_entries : Int
+} derive(ToJson)
+pub fn BoundaryField::to_json(Self) -> Json
+
+pub(all) struct BoundaryNode {
+  tag : Int
+  source_index : Int
+} derive(ToJson)
+pub fn BoundaryNode::to_json(Self) -> Json
+
+pub(all) struct BoundaryReport {
+  source_dimension : Int
+  boundary_dimension : Int
+  selected_elements : Int
+  nodes : Array[BoundaryNode]
+  facets : Array[BoundarySource]
+  fields : Array[BoundaryField]
+  losses : Array[String]
+} derive(ToJson)
+pub fn BoundaryReport::to_json(Self) -> Json
+
+pub(all) struct BoundarySource {
+  element : Int
+  owner : Int
+  owner_index : Int
+  local_facet : Int
+  explicit_element : Int
+} derive(ToJson)
+pub fn BoundarySource::to_json(Self) -> Json
+
 pub(all) struct Datum {
   tag : Int
   values : Array[Double]
@@ -77,6 +116,7 @@ pub fn Mesh::diagnostics(Self, tolerance? : Double) -> Diagnostics raise
 pub fn Mesh::elements(Self) -> Array[Element]
 pub fn Mesh::encode(Self, version? : String, binary? : Bool, little? : Bool, size_width? : Int, allow_loss? : Bool) -> Bytes raise
 pub fn Mesh::entities(Self) -> Array[Entity]
+pub fn Mesh::extract_boundary(Self, dimension? : Int, max_facets? : Int) -> Boundary raise
 pub fn Mesh::fields(Self) -> Array[Field]
 pub fn Mesh::nodes(Self) -> Array[Node]
 pub fn Mesh::obj(Self, allow_loss? : Bool) -> String raise
