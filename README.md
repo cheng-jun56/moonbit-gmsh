@@ -155,4 +155,5 @@ node tools/check-cli.mjs
   与 [当前 nightly](https://vtk.org/doc/nightly/html/classvtkWedge.html)：导出版本边界。
 
 未复制 Gmsh/VTK 实现；验证脚本调用 meshio 转换函数。
+验证工具许可证和合成fixture来源见 [SOURCES](docs/SOURCES.md)。
 AI 辅助开发事实保留在真实 Git 作者中，不伪造身份或凑提交数。
