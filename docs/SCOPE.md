@@ -12,7 +12,7 @@
 | 子集/紧凑编号 | operations，同步字段筛选/改号，不改实体和物理标签 |
 | 边界/邻接/连通 | 线性面 incidence 与非流形；全阶共享节点 components |
 | 孤立/重复/退化/翻转 | geometry；Double 相对阈值；翻转定义在线性四面体 |
-| 三角形/四面体质量体积 | NumPy 80 组、规则单纯形、数值边界 |
+| 三角形/四面体质量体积 | NumPy 80 组、规则单纯形、Decimal 极端长薄/次正规范围 |
 | VTK/OBJ/JSON | 真实文件、meshio 回读、体网格外法向 |
 | 工程 | 中文 README、公共 API、CLI、MIT、三系统 CI 配置、证据 |
 

@@ -30,40 +30,19 @@ fn dot(a : Array[Double], b : Array[Double]) -> Double {
 }
 
 ///|
-/// Scaled norm avoids squaring a small nonzero cross product to zero.
-fn norm(a : Array[Double]) -> Double {
-  let mut scale = 0.0
-  for x in a {
-    if x.abs() > scale {
-      scale = x.abs()
-    }
-  }
-  if scale == 0.0 {
-    return 0.0
-  }
-  let b = a.map(x => x / scale)
-  dot(b, b).sqrt() * scale
-}
-
-///|
 fn sub(a : Array[Double], b : Array[Double]) -> Array[Double] {
   [a[0] - b[0], a[1] - b[1], a[2] - b[2]]
 }
 
 ///|
-fn cross(a : Array[Double], b : Array[Double]) -> Array[Double] {
-  [
-    a[1] * b[2] - a[2] * b[1],
-    a[2] * b[0] - a[0] * b[2],
-    a[0] * b[1] - a[1] * b[0],
-  ]
-}
 
 ///| Triangle quality = 4 sqrt(3) A / sum(edge^2); tetrahedron quality =
 
 ///| 12 (3 |V|)^(2/3) / sum(edge^2). Both are 1 for a regular simplex.
 
-///| Normalize coordinates before products to avoid avoidable overflow.
+///| Scale edge-square sums, but keep products as mantissa/exponent pairs so
+
+///| anisotropic meshes do not lose small axes to uniform-scale underflow.
 
 ///|
 /// Degeneracy is scale-relative; triangle orientation in 3D is not "inverted".
@@ -117,33 +96,37 @@ pub fn Mesh::quality(
       edges = edges + dot(v, v)
     }
   }
-  let normal = cross(p[1], p[2])
-  let normalized = if e.kind == 2 {
-    norm(normal) / 2.0
+  let normal = scaled_cross(delta[1], delta[2])
+  let signed_measure = if e.kind == 2 {
+    scaled_norm(normal).divide(scaled(2.0))
   } else {
-    dot(normal, p[3]) / 6.0
+    scaled_dot(normal, delta[3]).divide(scaled(6.0))
   }
-  let measure = if e.kind == 2 {
-    normalized.abs() * scale * scale
-  } else {
-    normalized.abs() * scale * scale * scale
-  }
-  if !finite(measure) || (normalized != 0.0 && measure == 0.0) {
-    bad("geometric measure outside representable Double range")
-  }
-  let q = if edges == 0.0 {
+  let measure = signed_measure.absolute().value("geometric measure")
+  let denominator = scaled(edges).times(scaled(scale)).times(scaled(scale))
+  let q = if signed_measure.mantissa == 0.0 {
     0.0
   } else if e.kind == 2 {
-    4.0 * 3.0.sqrt() * normalized.abs() / edges
+    signed_measure
+    .absolute()
+    .times(scaled(4.0 * 3.0.sqrt()))
+    .divide(denominator)
+    .value("quality")
   } else {
-    12.0 * @math.pow(3.0 * normalized.abs(), 2.0 / 3.0) / edges
+    signed_measure
+    .absolute()
+    .times(scaled(3.0))
+    .two_thirds()
+    .times(scaled(12.0))
+    .divide(denominator)
+    .value("quality")
   }
   {
     tag,
     kind: e.kind,
     measure,
     signed_volume: if e.kind == 4 {
-      if normalized < 0.0 {
+      if signed_measure.mantissa < 0.0 {
         -measure
       } else {
         measure
@@ -157,7 +140,7 @@ pub fn Mesh::quality(
       q
     },
     degenerate: q <= tolerance,
-    inverted: e.kind == 4 && normalized < 0.0,
+    inverted: e.kind == 4 && signed_measure.mantissa < 0.0,
   }
 }
 

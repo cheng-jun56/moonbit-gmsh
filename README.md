@@ -115,8 +115,10 @@ DTO 可构造，Mesh 内部数组/索引私有。关联先验证，不静默修�
   未知二进制段直接拒绝，不扫描二进制内容猜结束标记。
 - 邻接按完整面/边的节点集合；连通分量按共享任意节点。
   topology 默认只检查最高维，避免重复计入已列出的低维边界单元。
-- 质量使用归一化 Double 运算和尺度相对阈值，不是精确几何谓词；
-  极端病态/近共面场景会受浮点舍入影响，无法表示的面积/体积报错。
+- 面积/体积乘积使用分离的 Double 尾数与二进制指数，边长平方和归一化，
+  避免极端长薄单元因中间乘积上下溢而误报零值；退化采用尺度相对阈值。
+  这不是精确几何谓词：近共面/相消场景仍受浮点舍入影响，
+  无法表示的非零面积、体积或质量值明确报错，不静默截断为零。
   不检查任意网格自交、CAD 一致性或有限元求解适用性。
 - VTK 是 legacy ASCII，棱柱顺序按 VTK 9.3 / meshio 5.3.5 转换。
   最新 VTK nightly 的 wedge 约定已有差异；不声称对所有版本验证。
@@ -141,9 +143,10 @@ python tools/verify-reference.py
 node tools/check-cli.mjs
 ```
 
-本地 JS / Wasm-GC 各 12 组、24 项 CLI 检查、独立 540 个请求 / 1,957 断言。
+本地 JS / Wasm-GC 各 14 组、24 项 CLI 检查、独立 586 个请求 / 2,053 断言。
 17 类型 meshio 双向、另 2 类型 struct；稀疏数据/参数坐标/大小端/size_t32
-由 struct 验证，80 组几何由 NumPy 对照。详见 docs/TESTING.md 与 evidence/reference.json。
+由 struct 验证，80 组几何由 NumPy 对照；极端长薄和次正规范围用 100 位 Decimal
+独立对照。详见 docs/TESTING.md 与 evidence/reference.json。
 证据绑定源文件 LF 规范化 SHA-256；不是远程 CI 回执。
 
 - [Gmsh 官方格式与节点顺序](https://gmsh.info/doc/texinfo/gmsh.html#MSH-file-format)

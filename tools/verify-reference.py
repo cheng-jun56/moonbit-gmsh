@@ -11,6 +11,8 @@ import struct
 import subprocess
 import tempfile
 import time
+import math
+from decimal import Decimal, localcontext
 import meshio
 import numpy as np
 from meshio.gmsh.common import _gmsh_to_meshio_order, _meshio_to_gmsh_order
@@ -278,6 +280,41 @@ def invalid_inputs():
     call(original+b"$Comment\nopaque 77\n$EndComment\n",action="transform",command="compact",reject=True)
     call(data+b"$Custom\nx\n$EndCustom\n",reject=True)
 
+def extreme_geometry():
+    """High-precision independent references avoid NumPy determinant overflow."""
+    with localcontext() as context:
+        context.prec=100
+        for powers in [(150,-50,-50),(100,-210,100),(-100,-100,-100),
+                       (100,100,100),(200,200,-100),(-200,-100,0),
+                       (-100,-100,-110),(-100,-100,-120),
+                       (200,-100,0),(200,200,0),(-200,-200,0)]:
+            axes=[10.0**e for e in powers]
+            exact=[Decimal.from_float(x) for x in axes]
+            volume=exact[0]*exact[1]*exact[2]/6
+            edges=3*sum(x*x for x in exact)
+            quality=12*(3*volume)**(Decimal(2)/Decimal(3))/edges
+            v,q=float(volume),float(quality)
+            for flipped in (False,True):
+                points=[[0,0,0],[axes[0],0,0],[0,axes[1],0],[0,0,axes[2]]]
+                data=call(action="create",nodes=[{"tag":i+1,"xyz":p} for i,p in enumerate(points)],
+                          elements=[{"tag":1,"kind":4,"nodes":[1,3,2,4] if flipped else [1,2,3,4]}])
+                if not math.isfinite(v) or v==0 or q==0:
+                    call(data,command="quality",tag=1,reject=True)
+                    continue
+                got=call(data,command="quality",tag=1)
+                check(math.isclose(got["measure"],v,rel_tol=3e-13,abs_tol=2*math.ulp(v)),f"Decimal volume {powers}")
+                check(math.isclose(got["quality"],q,rel_tol=3e-13,abs_tol=2*math.ulp(q)),f"Decimal quality {powers}")
+                check(got["inverted"]==flipped and (got["signed_volume"]<0)==flipped,"extreme orientation")
+        points=[[0,0,0],[1e100,1e-210,0],[1e100,0,0]]
+        data=call(action="create",nodes=[{"tag":i+1,"xyz":p} for i,p in enumerate(points)],
+                  elements=[{"tag":1,"kind":2,"nodes":[1,2,3]}])
+        got=call(data,command="quality",tag=1)
+        a,b=Decimal.from_float(1e100),Decimal.from_float(1e-210)
+        area=a*b/2
+        quality=4*Decimal(3).sqrt()*area/(2*a*a+2*b*b)
+        for key,expected in [("measure",float(area)),("quality",float(quality))]:
+            check(math.isclose(got[key],expected,rel_tol=3e-13,abs_tol=2*math.ulp(expected)),"Decimal long-edge triangle "+key)
+
 def benchmark():
     records=[]
     for side in (8,64):
@@ -311,6 +348,7 @@ def main():
             geometry(tmp)
             topology_cells(tmp)
             invalid_inputs()
+            extreme_geometry()
             bench=benchmark()
         source_files=sorted(list(ROOT.glob("*.mbt"))+list((ROOT/"cmd").rglob("*.mbt"))+
                             list(ROOT.glob("moon.*"))+list((ROOT/"cmd").rglob("moon.pkg"))+
@@ -322,6 +360,7 @@ def main():
                            "wedge15/pyramid13 independent struct bidirectional, not meshio",
                            "independent struct sparse BE/LE size_t32/64 parametric frames",
                            "NumPy geometry, meshio VTK/OBJ, malformed/truncated inputs"],
+                  "extreme_geometry_reference":"100-digit Decimal for anisotropic/subnormal simplices; explicit unrepresentable rejection",
                   "limitations":["meshio does not independently validate parametric nodes or sparse binary fields",
                                  "meshio 5.3.5 omits wedge15/pyramid13 in CellBlock registry; struct used",
                                  "NumPy legacy=1.25 print setting required for meshio ASCII scalar repr",
