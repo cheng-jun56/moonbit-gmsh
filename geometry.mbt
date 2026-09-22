@@ -30,6 +30,22 @@ fn dot(a : Array[Double], b : Array[Double]) -> Double {
 }
 
 ///|
+/// Scaled norm avoids squaring a small nonzero cross product to zero.
+fn norm(a : Array[Double]) -> Double {
+  let mut scale = 0.0
+  for x in a {
+    if x.abs() > scale {
+      scale = x.abs()
+    }
+  }
+  if scale == 0.0 {
+    return 0.0
+  }
+  let b = a.map(x => x / scale)
+  dot(b, b).sqrt() * scale
+}
+
+///|
 fn sub(a : Array[Double], b : Array[Double]) -> Array[Double] {
   [a[0] - b[0], a[1] - b[1], a[2] - b[2]]
 }
@@ -103,7 +119,7 @@ pub fn Mesh::quality(
   }
   let normal = cross(p[1], p[2])
   let normalized = if e.kind == 2 {
-    dot(normal, normal).sqrt() / 2.0
+    norm(normal) / 2.0
   } else {
     dot(normal, p[3]) / 6.0
   }

@@ -1,0 +1,48 @@
+#!/usr/bin/env node
+import fs from 'node:fs';
+import {report,transform,new_file} from '../_build/js/release/build/cmd/bridge/bridge.js';
+const usage=`Usage: node tools/gmsh.mjs COMMAND INPUT [OPTIONS.json] [OUTPUT]
+       node tools/gmsh.mjs create OPTIONS.json OUTPUT
+Reports: inspect dump validate quality topology components vtk obj
+Writes: copy convert subset physical compact (OUTPUT required)
+Options are a JSON FILE, not inline JSON; existing outputs are never overwritten.
+validate reports geometry defects in JSON; strict=true also exits 3 for supported
+defects. Unsupported quality types remain explicit and are not certified valid.`;
+function read(file,limit) {
+  const fd=fs.openSync(file,'r');
+  try {
+    const stat=fs.fstatSync(fd);
+    if(!stat.isFile()||stat.size>limit) throw new Error(`input must be a file <=${limit} bytes`);
+    const b=Buffer.alloc(stat.size+1);let n=0,k;
+    while(n<b.length&&(k=fs.readSync(fd,b,n,b.length-n,null))) n+=k;
+    if(n>stat.size) throw new Error('file grew during read; retry stable input');
+    return b.subarray(0,n);
+  } finally {fs.closeSync(fd);}
+}
+function options(file) {
+  const o=file?JSON.parse(read(file,8_000_000).toString('utf8')):{};
+  if(!o||typeof o!=='object'||Array.isArray(o)) throw new Error('options must be an object');
+  return o;
+}
+const save=(path,data)=>fs.writeFileSync(path,data,{flag:'wx'});
+try {
+  const a=process.argv.slice(2);
+  if(a.length===1&&['--help','-h'].includes(a[0])) console.log(usage);
+  else if(a[0]==='create') {
+    if(a.length!==3) throw new Error(usage);
+    save(a[2],Buffer.from(new_file(JSON.stringify(options(a[1])))));
+  } else {
+    if(a.length<2||a.length>4) throw new Error(usage);
+    const [command,input,opts,output]=a,o=options(opts);o.command=command;
+    const bytes=read(input,134_217_728);
+    if(['copy','convert','subset','physical','compact'].includes(command)) {
+      if(!output) throw new Error('transformation requires OUTPUT');
+      save(output,Buffer.from(transform(bytes,JSON.stringify(o))));
+    } else {
+      const value=JSON.parse(report(bytes,JSON.stringify(o)));
+      const text=['vtk','obj'].includes(command)?value.text:JSON.stringify(value,null,2)+'\n';
+      if(output) save(output,text);else process.stdout.write(text);
+      if(command==='validate'&&o.strict===true&&(value.isolated.length||value.duplicate_nodes.length||value.repeated_connectivity.length||value.qualities.some(q=>q.degenerate||q.inverted))) process.exitCode=3;
+    }
+  }
+} catch(e) {console.error(`gmsh: ${e.message}`);process.exitCode=2;}

@@ -53,7 +53,14 @@ pub fn Mesh::vtk(self : Mesh, allow_loss? : Bool = false) -> String raise {
   w.text("CELLS \{self.es.length()} \{total}\n")
   for e in self.es {
     w.text("\{e.nodes.length()}")
-    for n in e.nodes {
+    // Legacy vtkWedge (VTK 9.3, meshio 5.3.5) has the opposite base
+    // orientation to Gmsh. Do not reuse the Gmsh connectivity verbatim.
+    let nodes = if e.kind == 6 {
+      [0, 2, 1, 3, 5, 4].map(i => e.nodes[i])
+    } else {
+      e.nodes
+    }
+    for n in nodes {
       w.text(" \{self.ni[n]}")
     }
     w.text("\n")

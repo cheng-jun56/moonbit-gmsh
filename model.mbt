@@ -258,6 +258,7 @@ pub fn mesh(
     if n.dim < -1 ||
       n.dim > 3 ||
       n.entity < 0 ||
+      (n.dim == -1 && (n.entity != 0 || !entities.is_empty())) ||
       (!n.parameters.is_empty() && n.parameters.length() != n.dim) {
       bad("invalid node classification/parameters")
     }
