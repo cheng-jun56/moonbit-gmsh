@@ -1,0 +1,93 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "localreview/gmsh"
+
+import {
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn decode(Bytes) -> Mesh raise
+
+pub fn element_shape(Int) -> (Int, Int) raise MeshError
+
+pub fn mesh(Array[Node], Array[Element], entities? : Array[Entity], names? : Array[PhysicalName], fields? : Array[Field], unknown? : Array[Section], version? : String) -> Mesh raise MeshError
+
+// Errors
+pub suberror MeshError {
+  Invalid(String)
+} derive(@debug.Debug)
+pub fn MeshError::to_repr(Self) -> @debug.Repr
+
+// Types and methods
+pub(all) struct Datum {
+  tag : Int
+  values : Array[Double]
+} derive(ToJson)
+pub fn Datum::to_json(Self) -> Json
+
+pub(all) struct Element {
+  tag : Int
+  kind : Int
+  nodes : Array[Int]
+  entity : Int
+  physical : Array[Int]
+  extra : Array[Int]
+} derive(ToJson)
+pub fn Element::to_json(Self) -> Json
+
+pub(all) struct Entity {
+  dim : Int
+  tag : Int
+  bounds : Array[Double]
+  physical : Array[Int]
+  boundary : Array[Int]
+} derive(ToJson)
+pub fn Entity::to_json(Self) -> Json
+
+pub(all) struct Field {
+  location : String
+  strings : Array[String]
+  reals : Array[Double]
+  integers : Array[Int]
+  entries : Array[Datum]
+} derive(ToJson)
+pub fn Field::to_json(Self) -> Json
+
+pub struct Mesh {
+  // private fields
+}
+pub fn Mesh::elements(Self) -> Array[Element]
+pub fn Mesh::encode(Self, version? : String, binary? : Bool, little? : Bool, size_width? : Int, allow_loss? : Bool) -> Bytes raise
+pub fn Mesh::entities(Self) -> Array[Entity]
+pub fn Mesh::fields(Self) -> Array[Field]
+pub fn Mesh::nodes(Self) -> Array[Node]
+pub fn Mesh::physical_names(Self) -> Array[PhysicalName]
+pub fn Mesh::source_version(Self) -> String
+pub fn Mesh::unknown_sections(Self) -> Array[Section]
+pub fn Mesh::without_unknown(Self) -> Self
+
+pub(all) struct Node {
+  tag : Int
+  xyz : Array[Double]
+  dim : Int
+  entity : Int
+  parameters : Array[Double]
+} derive(ToJson)
+pub fn Node::to_json(Self) -> Json
+
+pub(all) struct PhysicalName {
+  dim : Int
+  tag : Int
+  name : String
+} derive(ToJson)
+pub fn PhysicalName::to_json(Self) -> Json
+
+pub(all) struct Section {
+  name : String
+  body : String
+} derive(ToJson)
+pub fn Section::to_json(Self) -> Json
+
+// Type aliases
+
+// Traits
