@@ -25,6 +25,15 @@ pub(all) struct Datum {
 } derive(ToJson)
 pub fn Datum::to_json(Self) -> Json
 
+pub(all) struct Diagnostics {
+  isolated : Array[Int]
+  duplicate_nodes : Array[Array[Int]]
+  repeated_connectivity : Array[Int]
+  qualities : Array[Quality]
+  unsupported_quality : Array[Int]
+} derive(ToJson)
+pub fn Diagnostics::to_json(Self) -> Json
+
 pub(all) struct Element {
   tag : Int
   kind : Int
@@ -44,6 +53,12 @@ pub(all) struct Entity {
 } derive(ToJson)
 pub fn Entity::to_json(Self) -> Json
 
+pub(all) struct Facet {
+  nodes : Array[Int]
+  owners : Array[Int]
+} derive(ToJson)
+pub fn Facet::to_json(Self) -> Json
+
 pub(all) struct Field {
   location : String
   strings : Array[String]
@@ -56,14 +71,23 @@ pub fn Field::to_json(Self) -> Json
 pub struct Mesh {
   // private fields
 }
+pub fn Mesh::compact(Self) -> Self raise
+pub fn Mesh::components(Self) -> Array[Array[Int]]
+pub fn Mesh::diagnostics(Self, tolerance? : Double) -> Diagnostics raise
 pub fn Mesh::elements(Self) -> Array[Element]
 pub fn Mesh::encode(Self, version? : String, binary? : Bool, little? : Bool, size_width? : Int, allow_loss? : Bool) -> Bytes raise
 pub fn Mesh::entities(Self) -> Array[Entity]
 pub fn Mesh::fields(Self) -> Array[Field]
 pub fn Mesh::nodes(Self) -> Array[Node]
+pub fn Mesh::obj(Self, allow_loss? : Bool) -> String raise
 pub fn Mesh::physical_names(Self) -> Array[PhysicalName]
+pub fn Mesh::quality(Self, Int, tolerance? : Double) -> Quality raise
+pub fn Mesh::select_physical(Self, Int, Int) -> Self raise
 pub fn Mesh::source_version(Self) -> String
+pub fn Mesh::subset(Self, Array[Int]) -> Self raise
+pub fn Mesh::topology(Self, dimension? : Int) -> Topology raise
 pub fn Mesh::unknown_sections(Self) -> Array[Section]
+pub fn Mesh::vtk(Self, allow_loss? : Bool) -> String raise
 pub fn Mesh::without_unknown(Self) -> Self
 
 pub(all) struct Node {
@@ -82,11 +106,30 @@ pub(all) struct PhysicalName {
 } derive(ToJson)
 pub fn PhysicalName::to_json(Self) -> Json
 
+pub(all) struct Quality {
+  tag : Int
+  kind : Int
+  measure : Double
+  signed_volume : Double
+  quality : Double
+  degenerate : Bool
+  inverted : Bool
+} derive(ToJson)
+pub fn Quality::to_json(Self) -> Json
+
 pub(all) struct Section {
   name : String
   body : String
 } derive(ToJson)
 pub fn Section::to_json(Self) -> Json
+
+pub(all) struct Topology {
+  dimension : Int
+  facets : Array[Facet]
+  boundary : Array[Facet]
+  nonmanifold : Array[Facet]
+} derive(ToJson)
+pub fn Topology::to_json(Self) -> Json
 
 // Type aliases
 

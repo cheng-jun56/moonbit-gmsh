@@ -120,7 +120,7 @@ fn Mesh::classified(self : Mesh) -> Mesh raise {
     let entity = if e.entity > 0 {
       e.entity
     } else {
-      let key = "\{dim}:\{e.physical.to_json()}"
+      let key = "\{dim}:" + id_key(e.physical)
       match allocated.get(key) {
         Some(t) => t
         None => {
