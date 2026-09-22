@@ -159,8 +159,11 @@ node tools/check-cli.mjs
 ```
 
 原基线 JS / Wasm-GC 各14组、24项CLI、独立586请求/2,053断言；本次边界新增6组核心测试。
-新增独立边界请求及真实CLI记录见 evidence/boundary-reference.json，完整当前源码绑定
-见 evidence/boundary-20260922.json。历史 evidence/reference.json 不冒充新增代码的回执。
+新增独立边界请求及真实CLI记录见 evidence/boundary-reference.json。
+后续细查修复共享四边形面连边不一致却被消去的问题：topology、边界提取与体网格OBJ
+统一拒绝不兼容的面环，仍接受旋转/反转。当前源码绑定见 evidence/topology-audit-20260922.json，
+24种排列的独立边集合对照见 evidence/facet-cycles-reference.json。
+历史 evidence/reference.json 和 evidence/boundary-20260922.json 不冒充本次修复的回执。
 17 类型 meshio 双向、另 2 类型 struct；稀疏数据/参数坐标/大小端/size_t32
 由 struct 验证，80 组几何由 NumPy 对照；极端长薄和次正规范围用 100 位 Decimal
 独立对照。详见 docs/TESTING.md 与 evidence/reference.json。

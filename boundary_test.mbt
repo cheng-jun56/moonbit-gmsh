@@ -21,6 +21,50 @@ fn cell(tag : Int, kind : Int, ns : Array[Int]) -> @gmsh.Element {
 }
 
 ///|
+test "shared quadrilateral faces require matching edges not just node sets" {
+  let ns = [
+    [0.0, 0.0, 0.0],
+    [1.0, 0.0, 0.0],
+    [1.0, 1.0, 0.0],
+    [0.0, 1.0, 0.0],
+    [0.5, 0.5, 1.0],
+    [0.5, 0.5, -1.0],
+  ].mapi((i, xyz) => @gmsh.Node::{
+    tag: i + 1,
+    xyz,
+    dim: -1,
+    entity: 0,
+    parameters: [],
+  })
+  for base in [[1, 2, 3, 4], [3, 4, 1, 2], [1, 4, 3, 2]] {
+    let lower = base.copy()
+    lower.push(6)
+    let m = @gmsh.mesh(ns, [cell(10, 7, [1, 2, 3, 4, 5]), cell(20, 7, lower)])
+    assert_eq(m.topology().boundary.length(), 8)
+    assert_eq(m.extract_boundary().mesh().elements().length(), 8)
+  }
+  let crossed = @gmsh.mesh(ns, [
+    cell(10, 7, [1, 2, 3, 4, 5]),
+    cell(20, 7, [1, 3, 2, 4, 6]),
+  ])
+  try crossed.topology() catch {
+    _ => ()
+  } noraise {
+    _ => fail("different polygon edges must not form an internal face")
+  }
+  try crossed.extract_boundary() catch {
+    _ => ()
+  } noraise {
+    _ => fail("incompatible shared face must not disappear from the boundary")
+  }
+  try crossed.obj() catch {
+    _ => ()
+  } noraise {
+    _ => fail("OBJ must not export the incorrect outer surface")
+  }
+}
+
+///|
 test "boundary removes shared faces and retains sparse source identity" {
   let m = @gmsh.mesh(nodes(), [
     cell(2147483647, 4, [10, 20, 30, 40]),

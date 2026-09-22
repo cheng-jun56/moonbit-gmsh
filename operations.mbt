@@ -171,6 +171,9 @@ fn id_key(ids : Array[Int]) -> String {
 
 ///|
 /// element tags, avoiding quadratic neighbor expansion for nonmanifold input.
+/// Matching node sets must also have the same polygon edge cycle. This rejects
+/// incompatible quadrilateral connectivity before boundary/OBJ omit the face;
+/// rotation and reversal remain valid, without certifying geometric orientation.
 pub fn Mesh::topology(self : Mesh, dimension? : Int = -1) -> Topology raise {
   let mut dim = dimension
   if dim == -1 {
@@ -202,7 +205,12 @@ pub fn Mesh::topology(self : Mesh, dimension? : Int = -1) -> Topology raise {
       }
       let key = id_key(sorted)
       match index.get(key) {
-        Some(i) => facets[i].owners.push(e.tag)
+        Some(i) => {
+          if !same_cycle(facets[i].nodes, nodes) {
+            bad("shared facet has incompatible polygon order")
+          }
+          facets[i].owners.push(e.tag)
+        }
         None => {
           index[key] = facets.length()
           facets.push({ nodes, owners: [e.tag], })

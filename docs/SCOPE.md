@@ -14,7 +14,7 @@
 | 可用边界网格 | extract_boundary/report/mesh；原始来源、匹配标签/稀疏字段、显式损失、真实MSH输出 |
 | 孤立/重复/退化/翻转 | geometry；Double 相对阈值；翻转定义在线性四面体 |
 | 三角形/四面体质量体积 | NumPy 80 组、规则单纯形、Decimal 极端长薄/次正规范围 |
-| VTK/OBJ/JSON | 真实文件、meshio 回读、体网格外法向 |
+| VTK/OBJ/JSON | 真实文件、meshio 回读、规则参考体单元外法向；不认证任意扭曲/倒置网格 |
 | 工程 | 中文 README、公共 API、CLI、MIT、三系统 CI 配置、证据 |
 
 明确子域：拓扑与 VTK/OBJ 是线性单元路径；高阶网格完整保存但不伪造

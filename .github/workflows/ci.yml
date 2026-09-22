@@ -40,9 +40,11 @@ jobs:
       - run: moon build --target js --release
       - run: python tools/verify-reference.py
       - run: python tools/verify-boundary.py
+      - run: python tools/verify-facet-cycles.py
       - uses: actions/upload-artifact@v4
         with:
           name: gmsh-reference
           path: |
             evidence/reference.json
             evidence/boundary-reference.json
+            evidence/facet-cycles-reference.json

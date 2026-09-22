@@ -72,10 +72,12 @@ pub fn Mesh::vtk(self : Mesh, allow_loss? : Bool = false) -> String raise {
   @utf8.decode(Bytes::from_array(w.out))
 }
 
-///| OBJ lines/surface faces; volume meshes use outward boundary facets at the
+///| OBJ lines/surface faces; volume meshes use reference-cell boundary facets at the
 
 ///|
-/// highest dimension. Nonmanifold volume boundaries are refused.
+/// highest dimension. Nonmanifold/incompatible polygon incidences are refused.
+/// Reference-cell winding is not a geometric outward-normal certification for
+/// inverted/warped cells. No orientation repair or self-intersection check.
 pub fn Mesh::obj(self : Mesh, allow_loss? : Bool = false) -> String raise {
   self.export_gate(allow_loss)
   let w : Writer = { out: [], binary: false, little: true, width: 8, }

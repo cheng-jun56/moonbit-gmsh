@@ -15,6 +15,7 @@ node tools/check-cli.mjs
 python -m pip install -r tools/requirements.txt
 python tools/verify-reference.py
 python tools/verify-boundary.py
+python tools/verify-facet-cycles.py
 moon run examples/extract_boundary --target js
 moon run examples/extract_boundary --target wasm-gc
 ```
@@ -58,3 +59,12 @@ evidence/reference.json 记录 *.mbt、moon 配置及脚本 LF 规范化 SHA-256
 真实CLI及最终OBJ/VTK下游回读。详细范围/计数见 boundary-reference.json。
 已有参考也在变更后运行，回执另存 boundary-baseline-reference.json；reference.json保留历史。
 公开接口、文档和示例纳入当前LF规范化源码散列，而不是只对核心文件抽样。
+
+## 2026-09-22 共享四边形面细查修复
+
+旧代码仅凭节点集合消去共享面，错误接受连边不同的四边形。新增公开API回归测试
+在修复前确实失败；修复后全套21组。独立脚本枚举24种排列，用无向边集合而非
+实现的旋转/反转算法判断，覆盖topology、boundary和OBJ三条路径（8种合法、16种拒绝）。
+旧参考回执保留原字节；修复后重跑基线/边界参考分别另存 topology-baseline-reference.json、
+topology-boundary-reference.json。最新聚合证据见 topology-audit-20260922.json。
+该检查保护连接关系，不是任意非凸/倒置网格的几何外法向认证。
