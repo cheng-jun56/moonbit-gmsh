@@ -1,0 +1,22 @@
+{
+  "project": "gmsh",
+  "originalSubmission": "pop3",
+  "title": "MoonGmsh：MoonBit 内的网格边界交换与标签交付检查",
+  "module": "localreview/gmsh",
+  "version": "0.2.0",
+  "repository": null,
+  "license": "MIT",
+  "status": "旧选题停用；本地替代完成核验，换题与公开待团队办理",
+  "acceptance": "not established",
+  "localChangesPublished": false,
+  "actualUsersClaimed": false,
+  "remoteCIRunByThisTask": false,
+  "currentValidation": "evidence/coverage-20260927/LOCAL-CHECKS.json",
+  "currentEvidence": "evidence/coverage-20260927/LOCAL-CHECKS.json",
+  "proposalLines": 11,
+  "metadataReviewedOn": "2026-09-27",
+  "currentEvidenceScope": "Old POP3 topic stopped; pure MoonBit boundary label coverage; 4 actual Gmsh tutorial formats checked against Gmsh and meshio",
+  "topicChangeApproved": false,
+  "publicRepositoryCreated": false,
+  "localModuleNameNeedsReview": true
+}
