@@ -217,6 +217,14 @@ fn do_report(data : Bytes, options : String) -> String raise {
       .report()
       .to_json()
     }
+    "coverage" =>
+      m
+      .extract_boundary(
+        dimension=opt_int(o, "dimension", -1),
+        max_facets=opt_int(o, "max_facets", 1000000),
+      )
+      .coverage(required_groups=ints(o, "required_groups"))
+      .to_json()
     "components" => m.components().to_json()
     "vtk" => { "text": m.vtk(allow_loss=opt(o, "allow_loss", false)).to_json() }
     "obj" => { "text": m.obj(allow_loss=opt(o, "allow_loss", false)).to_json() }

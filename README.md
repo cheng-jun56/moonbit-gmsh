@@ -4,8 +4,10 @@
 
 纯 MoonBit 的 Gmsh MSH 网格交换、拓扑与几何检查库。核心不调用 Gmsh、
 meshio、Python 或 JS 解析器；Node 宿主只处理参数、真实文件和退出码。
-本地模块 `localreview/gmsh@0.1.0`，MIT；尚未推送、发布或运行远程 CI。
+本地模块 `localreview/gmsh@0.2.0`，MIT；尚未推送、发布或运行远程 CI。
 不是网格生成器，也不把“能读取文件”当成有限元网格质量认证。
+
+0.2.0 增加公共边界标签覆盖检查和[公开Gmsh教程工作流](docs/PUBLIC-TUTORIAL.md)：404节点、80条边界、10条未分组，实际Gmsh/meshio独立核验。完整选题说明见[申报草案](PROPOSAL.md)。
 
 ## 已实现范围
 
@@ -27,7 +29,7 @@ meshio、Python 或 JS 解析器；Node 宿主只处理参数、真实文件和�
 
 ## 立即运行
 
-实测 Moon 0.1.20260920 / moonc 0.10.14+7d59c7ec9、Node 24.11.0。
+本轮实测 Moon 0.1.20260904 / moonc 0.10.12+1634b282e、Node 24.11.0。
 先安装 MoonBit 与 Node 24，然后在仓库根目录运行：
 
 ```sh
@@ -61,7 +63,7 @@ node tools/gmsh.mjs create OPTIONS.json OUTPUT
 
 OPTIONS 是 UTF-8 JSON **文件路径**，不是内联 JSON。
 可写命令：`copy convert subset physical compact boundary-msh`。报告命令：
-`inspect dump validate quality topology components boundary vtk obj`。
+`inspect dump validate quality topology components boundary coverage vtk obj`。
 未指定 OUTPUT 时报告到 stdout；VTK/OBJ 输出文本，其余输出 JSON。
 
 | 选项 | 用途 |

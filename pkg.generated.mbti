@@ -22,8 +22,19 @@ pub fn MeshError::to_repr(Self) -> @debug.Repr
 pub struct Boundary {
   // private fields
 }
+pub fn Boundary::coverage(Self, required_groups? : Array[Int]) -> BoundaryCoverage raise
 pub fn Boundary::mesh(Self, allow_loss? : Bool) -> Mesh raise
 pub fn Boundary::report(Self) -> BoundaryReport
+
+pub(all) struct BoundaryCoverage {
+  boundary_dimension : Int
+  facets : Int
+  groups : Array[BoundaryGroup]
+  unlabeled : Array[BoundarySource]
+  multiple : Array[BoundarySource]
+  missing_groups : Array[Int]
+} derive(ToJson)
+pub fn BoundaryCoverage::to_json(Self) -> Json
 
 pub(all) struct BoundaryField {
   source_index : Int
@@ -31,6 +42,12 @@ pub(all) struct BoundaryField {
   retained_entries : Int
 } derive(ToJson)
 pub fn BoundaryField::to_json(Self) -> Json
+
+pub(all) struct BoundaryGroup {
+  tag : Int
+  facets : Int
+} derive(ToJson)
+pub fn BoundaryGroup::to_json(Self) -> Json
 
 pub(all) struct BoundaryNode {
   tag : Int

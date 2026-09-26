@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import {report,transform,new_file} from '../_build/js/release/build/cmd/bridge/bridge.js';
 const usage=`Usage: node tools/gmsh.mjs COMMAND INPUT [OPTIONS.json] [OUTPUT]
        node tools/gmsh.mjs create OPTIONS.json OUTPUT
-Reports: inspect dump validate quality topology components boundary vtk obj
+Reports: inspect dump validate quality topology components boundary coverage vtk obj
 Writes: copy convert subset physical compact boundary-msh (OUTPUT required)
 boundary reports source mapping and losses; boundary-msh requires allow_loss
 when that report lists omissions. Derived MSH defaults to version 2.2.
@@ -46,6 +46,7 @@ try {
       const text=['vtk','obj'].includes(command)?value.text:JSON.stringify(value,null,2)+'\n';
       if(output) save(output,text);else process.stdout.write(text);
       if(command==='validate'&&o.strict===true&&(value.isolated.length||value.duplicate_nodes.length||value.repeated_connectivity.length||value.qualities.some(q=>q.degenerate||q.inverted))) process.exitCode=3;
+      if(command==='coverage'&&o.strict===true&&(value.unlabeled.length||value.multiple.length||value.missing_groups.length)) process.exitCode=3;
     }
   }
 } catch(e) {console.error(`gmsh: ${e.message}`);process.exitCode=2;}

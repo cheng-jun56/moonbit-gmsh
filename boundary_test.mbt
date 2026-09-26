@@ -21,6 +21,36 @@ fn cell(tag : Int, kind : Int, ns : Array[Int]) -> @gmsh.Element {
 }
 
 ///|
+test "boundary coverage never inherits volume groups or approves lossy export" {
+  let b = @gmsh.mesh(nodes(), [
+    { ..cell(90, 2, [10, 20, 30]), physical: [9], },
+    { ..cell(77, 1, [20, 10]), physical: [4, 5], },
+  ]).extract_boundary()
+  let c = b.coverage(required_groups=[9, 4, 7])
+  assert_eq(c.facets, 3)
+  assert_eq(c.unlabeled.length(), 2)
+  assert_eq(c.multiple.map(f => f.explicit_element), [77])
+  assert_eq(c.missing_groups, [7, 9])
+  assert_eq(c.groups.map(g => g.tag), [4, 5])
+  assert_eq(c.groups.map(g => g.facets), [1, 1])
+  assert_true(c.unlabeled.all(f => f.owner == 90 && f.explicit_element == 0))
+  c.unlabeled.clear()
+  assert_eq(b.coverage().unlabeled.length(), 2)
+  try b.mesh() catch {
+    _ => ()
+  } noraise {
+    _ => fail("coverage inspection must not waive export losses")
+  }
+  for required in [[0], [-1], [4, 4]] {
+    try b.coverage(required_groups=required) catch {
+      _ => ()
+    } noraise {
+      _ => fail("invalid coverage contract must be rejected")
+    }
+  }
+}
+
+///|
 test "shared quadrilateral faces require matching edges not just node sets" {
   let ns = [
     [0.0, 0.0, 0.0],

@@ -68,3 +68,11 @@ evidence/reference.json 记录 *.mbt、moon 配置及脚本 LF 规范化 SHA-256
 旧参考回执保留原字节；修复后重跑基线/边界参考分别另存 topology-baseline-reference.json、
 topology-boundary-reference.json。最新聚合证据见 topology-audit-20260922.json。
 该检查保护连接关系，不是任意非凸/倒置网格的几何外法向认证。
+
+## 0.2.0 覆盖检查与公开教程（2026-09-27）
+
+当前 Moon0.1.20260904/moonc0.10.12+1634b282e，JS/WasmGC各22项通过，CLI24项。既有边界独立回归206 cases/726 checks/15 CLI通过，新回执单独保存在 evidence/coverage-20260927，旧历史回执保留。
+
+实际Gmsh4.15.2与meshio5.3.5对四种固定输入核验全部坐标、连接、边界/标签及父单元；外边界由独立Python三角边计数计算。80边中70有组5、10未分组，区域组6不当作边界组；默认有损导出拒绝且不留输出。实际文件消费者也已运行，回执保留。
+
+首次公共参考脚本在Windows未解析到子进程node路径，改为在加载Gmsh前解析完整可执行路径后通过。这是参考宿主修复；不把失败运行计为通过。未运行远端CI；Ubuntu工作流已固定工具链，公共参考依赖额外libGLU。教程生成不承诺跨平台字节确定性；CI使用附带固定文件。

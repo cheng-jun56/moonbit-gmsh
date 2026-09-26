@@ -84,3 +84,7 @@ meshio按最大节点tag建立稠密表，最大整数tag用轻量独立ASCII解
 所有都是合成网格和本机验证，不替代真实远程CI或任意工业网格适用性认证。
 
 依据：[Gmsh官方格式与节点顺序](https://gmsh.info/doc/texinfo/gmsh.html#MSH-file-format)。
+
+## 0.2.0 标签覆盖清单
+
+`Boundary::coverage(required_groups=[])` 详见[公开教程与调用契约](PUBLIC-TUTORIAL.md)。检查本身不会取消 `mesh(allow_loss=false)` 的损失拒绝。
