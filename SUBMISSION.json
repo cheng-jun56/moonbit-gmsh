@@ -18,5 +18,9 @@
   "currentEvidenceScope": "Old POP3 topic stopped; pure MoonBit boundary label coverage; 4 actual Gmsh tutorial formats checked against Gmsh and meshio",
   "topicChangeApproved": false,
   "publicRepositoryCreated": false,
-  "localModuleNameNeedsReview": true
+  "localModuleNameNeedsReview": true,
+  "useCase": "导入网格后提取边界并定位未标记、重复标记和要求标签缺失，保留父单元来源",
+  "diff": "Gmsh/meshio/meshio++和Gmsh Wasm已有交换/提取；不将父单元或Wasm当独有，提供MoonBit标签检查API",
+  "remainingRisk": "教程非工程采用；非CAD/网格生成/有限元求解器，不认证任意高阶或扭曲网格；换题待办理",
+  "reviewDecision": "停用旧题，替换Gmsh"
 }
