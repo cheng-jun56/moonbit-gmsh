@@ -179,3 +179,9 @@ node tools/check-cli.mjs
 未复制 Gmsh/VTK 实现；验证脚本调用 meshio 转换函数。
 验证工具许可证和合成fixture来源见 [SOURCES](docs/SOURCES.md)。
 AI 辅助开发事实保留在真实 Git 作者中，不伪造身份或凑提交数。
+
+## 2026-09-27：独立格式检查加入自动流程
+
+在既有公开T1教程门之外，CI新增固定 meshio 5.3.5 / NumPy 2.5.3 的格式与几何正确性矩阵。`python tools/verify-reference.py --skip-benchmark --evidence evidence/reference-ci.json` 跳过合成性能工作负载，独立覆盖17种meshio单元与2种struct单元、多版本/编码、稀疏字段与坏输入；输出单独回执，不覆盖历史reference.json。当前本地Python3.12.14实跑580次调用/2041项断言全部通过，约1秒；这个时间只描述本次运行，不是性能承诺。GitHub流程配置有5分钟超时并保留报告，但未声称远端已执行。产品核心/API没有变化，版本仍0.2.0。
+
+当前检查见 [reference-gate-20260927/LOCAL-CHECKS.json](evidence/reference-gate-20260927/LOCAL-CHECKS.json)，原公开T1数据证据仍独立保留。本改动加强持续核验，不新增网格能力、不证明高阶工程质量或赛事接受。

@@ -11,16 +11,17 @@
   "localChangesPublished": false,
   "actualUsersClaimed": false,
   "remoteCIRunByThisTask": false,
-  "currentValidation": "evidence/coverage-20260927/LOCAL-CHECKS.json",
-  "currentEvidence": "evidence/coverage-20260927/LOCAL-CHECKS.json",
+  "currentValidation": "evidence/reference-gate-20260927/LOCAL-CHECKS.json",
+  "currentEvidence": "evidence/reference-gate-20260927/LOCAL-CHECKS.json",
   "proposalLines": 11,
   "metadataReviewedOn": "2026-09-27",
-  "currentEvidenceScope": "Old POP3 topic stopped; pure MoonBit boundary label coverage; 4 actual Gmsh tutorial formats checked against Gmsh and meshio",
+  "currentEvidenceScope": "Existing fixed meshio/NumPy/struct correctness matrix wired into CI; local 580 calls/2041 assertions passed; product core unchanged; public T1 evidence retained separately",
   "topicChangeApproved": false,
   "publicRepositoryCreated": false,
   "localModuleNameNeedsReview": true,
   "useCase": "导入网格后提取边界并定位未标记、重复标记和要求标签缺失，保留父单元来源",
   "diff": "Gmsh/meshio/meshio++和Gmsh Wasm已有交换/提取；不将父单元或Wasm当独有，提供MoonBit标签检查API",
   "remainingRisk": "教程非工程采用；非CAD/网格生成/有限元求解器，不认证任意高阶或扭曲网格；换题待办理",
-  "reviewDecision": "停用旧题，替换Gmsh"
+  "reviewDecision": "停用旧题，替换Gmsh",
+  "previousEvidence": "evidence/coverage-20260927/LOCAL-CHECKS.json"
 }

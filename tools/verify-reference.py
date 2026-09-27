@@ -1,5 +1,6 @@
 """Independent meshio/NumPy/struct checks; no project parser used as oracle."""
 import base64
+import argparse
 import contextlib
 import hashlib
 import io
@@ -18,8 +19,7 @@ import numpy as np
 from meshio.gmsh.common import _gmsh_to_meshio_order, _meshio_to_gmsh_order
 
 ROOT = Path(__file__).resolve().parents[1]
-HOST = subprocess.Popen(["node", str(ROOT / "tools/oracle-host.mjs")],
-                        stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True, encoding="utf-8")
+HOST = None
 CASES = CHECKS = 0
 def check(value, message):
     global CHECKS
@@ -338,6 +338,15 @@ def benchmark():
     return records
 
 def main():
+    global HOST
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--skip-benchmark', action='store_true',
+                        help='Run the complete correctness matrix without synthetic timing workloads')
+    parser.add_argument('--evidence', type=Path, default=ROOT / 'evidence/reference.json',
+                        help='Evidence output (CI uses a separate file to preserve saved reference results)')
+    args = parser.parse_args()
+    HOST = subprocess.Popen(["node", str(ROOT / "tools/oracle-host.mjs")],
+                            stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True, encoding="utf-8")
     started=time.perf_counter()
     try:
         with tempfile.TemporaryDirectory(prefix="gmsh-reference-") as d:
@@ -349,13 +358,14 @@ def main():
             topology_cells(tmp)
             invalid_inputs()
             extreme_geometry()
-            bench=benchmark()
+            bench=[] if args.skip_benchmark else benchmark()
         source_files=sorted(list(ROOT.glob("*.mbt"))+list((ROOT/"cmd").rglob("*.mbt"))+
                             list(ROOT.glob("moon.*"))+list((ROOT/"cmd").rglob("moon.pkg"))+
                             list((ROOT/"tools").glob("*.mjs"))+[Path(__file__),ROOT/"tools/requirements.txt"])
         evidence={"python":platform.python_version(),"platform":platform.platform(),"meshio":meshio.__version__,
                   "numpy":np.__version__,"cases":CASES,"checks":CHECKS,"seconds":time.perf_counter()-started,
                   "benchmarks":bench,"source_sha256":{str(p.relative_to(ROOT)).replace(os.sep,"/"):hashlib.sha256(p.read_bytes().replace(b"\r\n",b"\n")).hexdigest() for p in source_files},
+                  "benchmark_executed":not args.skip_benchmark,
                   "scope":["meshio bidirectional 17 kinds x 2 versions x ASCII/binary",
                            "wedge15/pyramid13 independent struct bidirectional, not meshio",
                            "independent struct sparse BE/LE size_t32/64 parametric frames",
@@ -364,9 +374,10 @@ def main():
                   "limitations":["meshio does not independently validate parametric nodes or sparse binary fields",
                                  "meshio 5.3.5 omits wedge15/pyramid13 in CellBlock registry; struct used",
                                  "NumPy legacy=1.25 print setting required for meshio ASCII scalar repr",
-                                 "geometry benchmark is synthetic, Windows JS only; no remote CI"]}
-        (ROOT/"evidence").mkdir(exist_ok=True)
-        (ROOT/"evidence/reference.json").write_text(json.dumps(evidence,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+                                 "synthetic correctness fixtures, not production or engineering certification",
+                                 "this report records its own platform; remote CI status must be checked separately"]}
+        args.evidence.parent.mkdir(parents=True,exist_ok=True)
+        args.evidence.write_text(json.dumps(evidence,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
         print(json.dumps({k:v for k,v in evidence.items() if k!="source_sha256"},indent=2))
     finally:
         HOST.stdin.close()
