@@ -71,7 +71,7 @@ topology-boundary-reference.json。最新聚合证据见 topology-audit-20260922
 
 ## 0.2.0 覆盖检查与公开教程（2026-09-27）
 
-当前 Moon0.1.20260904/moonc0.10.12+1634b282e，JS/WasmGC各22项通过，CLI24项。既有边界独立回归206 cases/726 checks/15 CLI通过，新回执单独保存在 evidence/coverage-20260927，旧历史回执保留。
+本次版本复核使用 Moon 0.1.20260920 / moonc 0.10.14+7d59c7ec9，JS/Wasm-GC各22项、CLI24项通过。既有边界独立回归206 cases/726 checks/15 CLI通过；新回执单独保存在 evidence/coverage-20260927，旧历史回执保留。
 
 实际Gmsh4.15.2与meshio5.3.5对四种固定输入核验全部坐标、连接、边界/标签及父单元；外边界由独立Python三角边计数计算。80边中70有组5、10未分组，区域组6不当作边界组；默认有损导出拒绝且不留输出。实际文件消费者也已运行，回执保留。
 
