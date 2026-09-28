@@ -4,7 +4,7 @@
 
 纯 MoonBit 的 Gmsh MSH 网格交换、拓扑与几何检查库。核心不调用 Gmsh、
 meshio、Python 或 JS 解析器；Node 宿主只处理参数、真实文件和退出码。
-本地模块 `localreview/gmsh@0.2.0`，MIT；尚未推送、发布或运行远程 CI。
+本地模块 `cheng-jun56/gmsh@0.2.0`，MIT；尚未推送、发布或运行远程 CI。
 不是网格生成器，也不把“能读取文件”当成有限元网格质量认证。
 
 0.2.0 增加公共边界标签覆盖检查和[公开Gmsh教程工作流](docs/PUBLIC-TUTORIAL.md)：404节点、80条边界、10条未分组，实际Gmsh/meshio独立核验。完整选题说明见[申报草案](PROPOSAL.md)。
@@ -202,4 +202,4 @@ moon package
 
 本地核验：JS/Wasm-GC 各 22 项测试、release 构建和 Node CLI 示例通过。 `moon package` 已完成离线打包预检，它不等于已发布到 Mooncakes。
 
-公开交付（2026-09-28 核对）：尚无本项目正式公开仓库 URL 或 Mooncakes 版本；模块名 `localreview/gmsh` 是本地验证命名空间，正式发布前须改成对应账号的名称；换题资格、仓库、公开 CI 和首次发布均待团队办理，不能沿用旧题仓库链接。相关远端 CI 与赛事结果仍需以实际记录核对。项目许可见 [LICENSE](LICENSE)；如使用第三方材料，其来源和许可见仓内相应说明。
+公开交付（2026-09-28 核对）：尚无本项目正式公开仓库 URL 或 Mooncakes 版本；模块名 `cheng-jun56/gmsh` 是本地验证命名空间，正式发布前须改成对应账号的名称；换题资格、仓库、公开 CI 和首次发布均待团队办理，不能沿用旧题仓库链接。相关远端 CI 与赛事结果仍需以实际记录核对。项目许可见 [LICENSE](LICENSE)；如使用第三方材料，其来源和许可见仓内相应说明。

@@ -1,4 +1,4 @@
-name = "localreview/gmsh"
+name = "cheng-jun56/gmsh"
 
 version = "0.2.0"
 

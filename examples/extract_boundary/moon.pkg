@@ -1,5 +1,5 @@
 import {
-  "localreview/gmsh",
+  "cheng-jun56/gmsh",
 }
 
 pkgtype(kind: "executable")

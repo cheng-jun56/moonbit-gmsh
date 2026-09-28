@@ -2,7 +2,7 @@
   "project": "gmsh",
   "originalSubmission": "pop3",
   "title": "MoonGmsh：MoonBit 内的网格边界交换与标签交付检查",
-  "module": "localreview/gmsh",
+  "module": "cheng-jun56/gmsh",
   "version": "0.2.0",
   "repository": null,
   "license": "MIT",
