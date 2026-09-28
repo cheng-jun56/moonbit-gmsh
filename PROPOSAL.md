@@ -1,12 +1,18 @@
-# MoonGmsh：MoonBit 内的网格边界交换与标签交付检查
+# MoonGmsh：保留来源与物理标签的网格边界交付
 
-拟替换旧 POP3 申报。换题、公开仓库和正式链接待团队办理；本地 `cheng-jun56/gmsh@0.2.0` 按拟交付账号命名，账号归属和发布权限待核实。本页不代表已获准换题或通过初审。
+本地模块 `cheng-jun56/gmsh@0.2.0`，拟替换因用途过窄而停用的 POP3 选题。正式仓库尚未公开，账号归属、换题资格和报名表链接仍待核实；旧 POP3 URL 不能代填。
+
+## 使用任务与实现
 
 面向在 MoonBit 内编写网格导入、前后处理和可视化准备代码的开发者，处理 MSH 2.2/4.1 文件，提供公共数据模型、拓扑/边界提取、节点与父单元来源、显式标签/稀疏字段保留、损失报告及受控导出。典型任务是检查导入网格的边界标签是否符合调用方要求，定位遗漏面，再把原始tag和来源一起交给下游。AI生成的转换脚本仍需可检查的标准语义、来源和失败边界；本库为这一任务提供可重复调用的核心，不以AI时代作为创新口号。
 
-已有 Gmsh、meshio、[meshio++](https://github.com/loumalouomega/meshioplusplus) 和 [Gmsh Wasm](https://www.npmjs.com/package/@loumalouomega/gmsh-wasm)；通用交换、表面提取和父单元信息不是本项目独有。定向Mooncakes检索没有发现同范围直接包，不能证明不存在。差异限于 MoonBit 可组合数据/API、无外部解析器的运行时和明确的标签/损失契约；不宣称算法原创、全格式替代或性能优胜。成熟格式移植及标准工程工作流是申请价值，最终由赛事裁量。
+## 与成熟工具的关系
 
-实证是公开 Gmsh 教程生成的四种输入，404节点、726三角形、80条边界、10条未标注，实际 Gmsh/meshio 独立对照；新增公共 `Boundary::coverage` 区分边界与区域组，返回定位信息，不猜物理条件。可直接运行的文件消费者见 `docs/PUBLIC-TUTORIAL.md`，纯MoonBit消费者见 `examples/extract_boundary`。源码、回执和工具链固定；参考工具只用于开发验证。
+Gmsh、meshio、[meshio++](https://github.com/loumalouomega/meshioplusplus) 和 [Gmsh Wasm](https://www.npmjs.com/package/@loumalouomega/gmsh-wasm) 已覆盖通用交换、表面提取或父单元信息；这些不是本项目首创。MoonBit 增量是可组合的数据/API、无外部解析器的运行核心和显式标签/损失契约。定向 Mooncakes 检索未见同范围包，不作为生态空白证明；不宣称全格式替代或性能优胜。
+
+## 可复现的网格交付
+
+公开 Gmsh 教程生成四种输入，共 404 节点、726 三角形、80 条边界、10 条未标注边界，实际 Gmsh/meshio 独立对照。公共 `Boundary::coverage` 区分边界组和区域组，返回遗漏位置而不猜测物理条件。文件消费者见 [PUBLIC-TUTORIAL](docs/PUBLIC-TUTORIAL.md)，纯 MoonBit 消费者见 `examples/extract_boundary`；参考工具只用于验证。
 
 仅线性选定维度支持边界处理，高阶交换与高阶质量认证分开；不保证扭曲网格外法向。没有工程客户、生产采用或求解正确性证据；教程不是实际工程项目。申请范围不包括CAD、网格生成和有限元求解器。
 
