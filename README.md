@@ -185,3 +185,19 @@ AI 辅助开发事实保留在真实 Git 作者中，不伪造身份或凑提交
 在既有公开T1教程门之外，CI新增固定 meshio 5.3.5 / NumPy 2.5.3 的格式与几何正确性矩阵。`python tools/verify-reference.py --skip-benchmark --evidence evidence/reference-ci.json` 跳过合成性能工作负载，独立覆盖17种meshio单元与2种struct单元、多版本/编码、稀疏字段与坏输入；输出单独回执，不覆盖历史reference.json。当前本地Python3.12.14实跑580次调用/2041项断言全部通过，约1秒；这个时间只描述本次运行，不是性能承诺。GitHub流程配置有5分钟超时并保留报告，但未声称远端已执行。产品核心/API没有变化，版本仍0.2.0。
 
 当前检查见 [reference-gate-20260927/LOCAL-CHECKS.json](evidence/reference-gate-20260927/LOCAL-CHECKS.json)，原公开T1数据证据仍独立保留。本改动加强持续核验，不新增网格能力、不证明高阶工程质量或赛事接受。
+
+## 本地验收与公开交付（2026-09-28）
+
+核心实现使用 MoonBit；[固定编译器](.moonbit-version)为 `moonc 0.10.14+7d59c7ec9`。先按本文安装宿主依赖、运行 `moon update`，再从仓库根目录执行以下与 [CI](.github/workflows/ci.yml) 对齐的检查；可运行任务和适用边界见本文前面的示例与说明。
+
+```sh
+moon check --target all
+moon test --target js
+moon test --target wasm-gc
+moon build --target js --release
+moon package
+```
+
+本地核验：JS/Wasm-GC 各 22 项测试、release 构建和 Node CLI 示例通过。 `moon package` 已完成离线打包预检，它不等于已发布到 Mooncakes。
+
+公开交付（2026-09-28 核对）：尚无本项目正式公开仓库 URL 或 Mooncakes 版本；模块名 `localreview/gmsh` 是本地验证命名空间，正式发布前须改成对应账号的名称；换题资格、仓库、公开 CI 和首次发布均待团队办理，不能沿用旧题仓库链接。相关远端 CI 与赛事结果仍需以实际记录核对。项目许可见 [LICENSE](LICENSE)；如使用第三方材料，其来源和许可见仓内相应说明。

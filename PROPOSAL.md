@@ -9,3 +9,5 @@
 实证是公开 Gmsh 教程生成的四种输入，404节点、726三角形、80条边界、10条未标注，实际 Gmsh/meshio 独立对照；新增公共 `Boundary::coverage` 区分边界与区域组，返回定位信息，不猜物理条件。可直接运行的文件消费者见 `docs/PUBLIC-TUTORIAL.md`，纯MoonBit消费者见 `examples/extract_boundary`。源码、回执和工具链固定；参考工具只用于开发验证。
 
 仅线性选定维度支持边界处理，高阶交换与高阶质量认证分开；不保证扭曲网格外法向。没有工程客户、生产采用或求解正确性证据；教程不是实际工程项目。申请范围不包括CAD、网格生成和有限元求解器。
+
+**验收复现与交付状态（2026-09-28 本地）**：以 moonc 0.10.14+7d59c7ec9 通过检查、JS/Wasm-GC 测试、构建、最小样例和离线 `moon package`；正式仓库、换题资格、远端 CI 和 Mooncakes 首发待办理。命令与能力边界见 [README](README.md)，自动检查见 [CI](.github/workflows/ci.yml)；本地通过不代表赛事审核通过。
