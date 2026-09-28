@@ -10,4 +10,4 @@
 
 仅线性选定维度支持边界处理，高阶交换与高阶质量认证分开；不保证扭曲网格外法向。没有工程客户、生产采用或求解正确性证据；教程不是实际工程项目。申请范围不包括CAD、网格生成和有限元求解器。
 
-**验收复现与交付状态（2026-09-28 本地）**：以 moonc 0.10.14+7d59c7ec9 通过检查、JS/Wasm-GC 测试、构建、最小样例和离线 `moon package`；正式仓库、换题资格、远端 CI 和 Mooncakes 首发待办理。命令与能力边界见 [README](README.md)，自动检查见 [CI](.github/workflows/ci.yml)；本地通过不代表赛事审核通过。
+**验收复现与交付状态（2026-09-28 本地）**：以 moonc 0.10.14+7d59c7ec9 通过 `--deny-warn` 检查、JS/Wasm-GC 测试和构建、最小样例和离线 `moon package`；正式仓库、换题资格、远端 CI 和 Mooncakes 首发待办理。命令与能力边界见 [README](README.md)，自动检查见 [CI](.github/workflows/ci.yml)；本地通过不代表赛事审核通过。
