@@ -1,6 +1,6 @@
 # MoonGmsh：保留来源与物理标签的网格边界交付
 
-本地模块 `cheng-jun56/gmsh@0.2.0`，拟替换因用途过窄而停用的 POP3 选题。公开仓库：https://github.com/cheng-jun56/moonbit-gmsh。
+本地模块 `cheng-jun56/gmsh@0.2.0`，拟替换因用途过窄而停用的 POP3 选题。公开仓库：https://github.com/cheng-jun56/moonbit-gmsh。 本地交付版 0.2.1 仅补全已存在公开仓库的包元数据地址，算法未改；尚未推送或发布，公开版仍为 0.2.0。
 
 ## 使用任务与实现
 

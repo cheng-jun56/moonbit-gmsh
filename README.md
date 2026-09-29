@@ -1,6 +1,6 @@
 # MoonGmsh
 
-项目仓库：[https://github.com/cheng-jun56/moonbit-gmsh](https://github.com/cheng-jun56/moonbit-gmsh)
+项目仓库：[https://github.com/cheng-jun56/moonbit-gmsh](https://github.com/cheng-jun56/moonbit-gmsh) 本地交付版 0.2.1 仅补全已存在公开仓库的包元数据地址，算法未改；尚未推送或发布，公开版仍为 0.2.0。
 
 评审/首次使用请先看[实际任务、替代方案与可运行证据](REVIEW.md)：读MSH，选定单元维度，消除内部共享面，提取边界，保留匹配的显式边界标签/字段，报告父单元来源与损失，再导出MSH或几何文件。
 
