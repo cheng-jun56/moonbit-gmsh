@@ -1,6 +1,6 @@
 # MoonGmsh：保留来源与物理标签的网格边界交付
 
-本地模块 `cheng-jun56/gmsh@0.2.0`，拟替换因用途过窄而停用的 POP3 选题。正式仓库尚未公开，账号归属、换题资格和报名表链接仍待核实；旧 POP3 URL 不能代填。
+本地模块 `cheng-jun56/gmsh@0.2.0`，拟替换因用途过窄而停用的 POP3 选题。公开仓库：https://github.com/cheng-jun56/moonbit-gmsh。
 
 ## 使用任务与实现
 
@@ -16,4 +16,4 @@ Gmsh、meshio、[meshio++](https://github.com/loumalouomega/meshioplusplus) 和 
 
 仅线性选定维度支持边界处理，高阶交换与高阶质量认证分开；不保证扭曲网格外法向。没有工程客户、生产采用或求解正确性证据；教程不是实际工程项目。申请范围不包括CAD、网格生成和有限元求解器。
 
-**验收复现与交付状态（2026-09-28 本地）**：以 moonc 0.10.14+7d59c7ec9 通过 `--deny-warn` 检查、JS/Wasm-GC 测试和构建、最小样例和离线 `moon package`；同一代码在 Ubuntu-D 26.04 WSL2 全新解包后通过格式、接口生成、严格双后端检查及 Node 24.21.0 最小宿主入口；正式仓库、换题资格、远端 CI 和 Mooncakes 首发待办理。命令与能力边界见 [README](README.md)，自动检查见 [CI](.github/workflows/ci.yml)；本地通过不代表赛事审核通过。
+**验收复现与交付状态（2026-09-28 本地）**：以 moonc 0.10.14+7d59c7ec9 通过 `--deny-warn` 检查、JS/Wasm-GC 测试和构建、最小样例和离线 `moon package`；同一代码在 Ubuntu-D 26.04 WSL2 全新解包后通过格式、接口生成、严格双后端检查及 Node 24.21.0 最小宿主入口；公开仓库已上线、远端 CI（ubuntu-latest）通过、Mooncakes 已发布 0.2.0；换题资格与表单更新按赛事流程办理。命令与能力边界见 [README](README.md)，自动检查见 [CI](.github/workflows/ci.yml)；本地通过不代表赛事审核通过。
